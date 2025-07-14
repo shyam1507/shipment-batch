@@ -9,4 +9,6 @@ public class Shipment {
 	private String customerName;
 	private String address;
 	private String status;
+	private String trackingNumber;  // unique
+	private String key;
 }
