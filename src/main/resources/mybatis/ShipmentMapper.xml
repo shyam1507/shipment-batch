@@ -1,10 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.spg.batch.mapper.ShipmentMapper">
-    <insert id="insertShipment" parameterType="com.spg.batch.model.Shipment">
-  INSERT INTO shipment (order_id, customer_name, address, status, tracking_number, `key`)
-  VALUES (#{orderId}, #{customerName}, #{address}, #{status}, #{trackingNumber}, #{key});
-</insert>
+	<insert id="insertShipment" parameterType="com.spg.batch.model.Shipment">
+		INSERT INTO shipment (order_id, customer_name, address, status,
+		tracking_number, `key`)
+		VALUES (#{orderId}, #{customerName}, #{address}, #{status},
+		#{trackingNumber}, #{key});
+	</insert>
+	<select id="existsByTrackingNumber" resultType="boolean"
+		parameterType="string">
+		SELECT EXISTS(
+		SELECT 1 FROM shipment WHERE tracking_number = #{trackingNumber}
+		)
+	</select>
+
 </mapper>

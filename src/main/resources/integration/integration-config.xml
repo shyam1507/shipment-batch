@@ -9,29 +9,50 @@
 						http://www.springframework.org/schema/integration/file https://www.springframework.org/schema/integration/file/spring-integration-file.xsd
 						http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
+	<!-- Component scan -->
+	<context:component-scan base-package="com.spg.batch" />
+
 	<!-- Step 1: Channels -->
 	<int:channel id="fileInputChannel" />
 	<int:channel id="shipmentProcessChannel" />
 
-	<!-- Step 2: Poll files from folder -->
+	<!-- Step 2: File Polling Configuration -->
 	<int-file:inbound-channel-adapter
 		id="fileInbound"
 		directory="file:./src/main/resources/sample_shipments"
-		filename-pattern="*.csv"
+		filter="compositeFilter"
 		channel="fileInputChannel"
 		auto-startup="true"
-		prevent-duplicates="true">
-
-		<int:poller fixed-delay="5000" />
+		scan-each-poll="true">
+		<int:poller fixed-rate="5000" />
 	</int-file:inbound-channel-adapter>
 
-	<!-- Step 3: Convert CSV to Java object -->
+	<!-- Step 2.1: Composite filter (pattern + no duplicates) -->
+	<bean id="compositeFilter"
+		class="org.springframework.integration.file.filters.CompositeFileListFilter">
+		<constructor-arg>
+			<list>
+				<!-- Only *.csv files -->
+				<bean
+					class="org.springframework.integration.file.filters.SimplePatternFileListFilter">
+					<constructor-arg value="*.csv" />
+				</bean>
+				<!-- Prevent processing same file again -->
+				<bean
+					class="org.springframework.integration.file.filters.AcceptOnceFileListFilter" />
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Step 3: CSV to Java Object -->
 	<int:transformer input-channel="fileInputChannel"
 		output-channel="shipmentProcessChannel"
-		ref="csvToShipmentConverter" method="convert" />
+		ref="csvToShipmentConverter"
+		method="convert" />
 
-	<!-- Step 4: Call service to persist -->
+	<!-- Step 4: Persist to DB -->
 	<int:service-activator input-channel="shipmentProcessChannel"
-		ref="shipmentService" method="saveAll" />
+		ref="shipmentService"
+		method="saveAll" />
 
 </beans>

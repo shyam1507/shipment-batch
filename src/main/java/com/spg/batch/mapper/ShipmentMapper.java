@@ -7,4 +7,5 @@ import com.spg.batch.model.Shipment;
 @Mapper
 public interface ShipmentMapper {
     void insertShipment(Shipment shipment);
+    boolean existsByTrackingNumber(String trackingNumber);
 }

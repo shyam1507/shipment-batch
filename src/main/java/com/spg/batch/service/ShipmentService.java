@@ -1,7 +1,9 @@
+// ShipmentService.java
 package com.spg.batch.service;
 
 import java.util.List;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.spg.batch.mapper.ShipmentMapper;
@@ -18,7 +20,11 @@ public class ShipmentService {
 
     public void saveAll(List<Shipment> shipments) {
         for (Shipment s : shipments) {
-            mapper.insertShipment(s);
+            try {
+                mapper.insertShipment(s);
+            } catch (DuplicateKeyException e) {
+                System.err.println("Duplicate Tracking Number skipped: " + s.getTrackingNumber());
+            }
         }
     }
 }
