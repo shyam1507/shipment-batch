@@ -11,4 +11,5 @@ public class Shipment {
 	private String status;
 	private String trackingNumber;  // unique
 	private String key;
+	private String batchNumber;
 }

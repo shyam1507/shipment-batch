@@ -4,9 +4,9 @@
 <mapper namespace="com.spg.batch.mapper.ShipmentMapper">
 	<insert id="insertShipment" parameterType="com.spg.batch.model.Shipment">
 		INSERT INTO shipment (order_id, customer_name, address, status,
-		tracking_number, `key`)
+		tracking_number, `key`, batch_number)
 		VALUES (#{orderId}, #{customerName}, #{address}, #{status},
-		#{trackingNumber}, #{key});
+		#{trackingNumber}, #{key}, #{batchNumber});
 	</insert>
 	<select id="existsByTrackingNumber" resultType="boolean"
 		parameterType="string">
