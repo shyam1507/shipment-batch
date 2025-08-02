@@ -9,25 +9,4 @@
 		#{trackingNumber}, #{key}, #{batchNumber}, #{shipmentStatus});
 	</insert>
 
-	<select id="existsByTrackingNumber" resultType="boolean"
-		parameterType="string">
-		SELECT EXISTS(
-		SELECT 1 FROM shipment WHERE tracking_number = #{trackingNumber}
-		)
-	</select>
-	<select id="findByBatchNumber" resultType="com.spg.batch.model.Shipment">
-		SELECT
-		id,
-		order_id AS orderId,
-		customer_name AS customerName,
-		address,
-		status,
-		tracking_number AS trackingNumber,
-		`key` AS `key`,
-		batch_number AS batchNumber,
-		shipment_status AS shipmentStatus
-		FROM shipment
-		WHERE batch_number = #{batchNumber}
-	</select>
-
 </mapper>

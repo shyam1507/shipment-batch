@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spg.batch.mapper.ShipmentDistanceMapper">
+	<insert id="insertDistance"
+		parameterType="com.spg.batch.model.ShipmentDistance">
+		INSERT INTO shipment_distance
+		(shipment_id, order_number, distance_km, calculated_at, customer_name)
+		VALUES (#{shipmentId}, #{orderNumber}, #{distanceKm}, #{calculatedAt}, #{customerName});
+	</insert>
+
+</mapper>

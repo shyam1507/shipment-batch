@@ -7,12 +7,7 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.messaging.Message;
@@ -23,14 +18,16 @@ import com.spg.batch.model.Shipment;
 @Component
 public class CsvToShipmentConverter {
 
-	// You can also persist this in DB if the app restarts
 	private static final Set<String> processedFiles = ConcurrentHashMap.newKeySet();
 
+	/**
+	 * Converts CSV file to List<Shipment>, skipping already processed files
+	 */
 	public List<Shipment> convert(Message<?> message) throws Exception {
 		String filePath = message.getPayload().toString();
 		String fileHash = generateFileHash(filePath);
 
-		// Skip if file already processed
+		// Skip duplicate files
 		if (!processedFiles.add(fileHash)) {
 			System.out.println("Skipping already processed file: " + filePath);
 			return Collections.emptyList();
@@ -45,13 +42,17 @@ public class CsvToShipmentConverter {
 				String[] parts = line.split(",");
 				if (parts.length >= 4) {
 					Shipment shipment = new Shipment();
-					shipment.setOrderId(parts[0]);
-					shipment.setCustomerName(parts[1]);
-					shipment.setAddress(parts[2]);
-					shipment.setStatus(parts[3]);
+
+					shipment.setOrderId(parts[0].trim());
+					shipment.setCustomerName(parts[1].trim());
+					shipment.setAddress(parts[2].trim());
+					shipment.setStatus(parts[3].trim());
+
 					shipment.setTrackingNumber(generateTrackingNumber());
 					shipment.setKey(generateShipmentKey());
 					shipment.setBatchNumber(batchNumber);
+
+					shipment.setShipmentStatus("START");
 					shipments.add(shipment);
 				}
 			}
@@ -60,6 +61,9 @@ public class CsvToShipmentConverter {
 		return shipments;
 	}
 
+	/**
+	 * Generate unique hash for a file (used to prevent duplicate reads)
+	 */
 	private String generateFileHash(String filePath) throws Exception {
 		byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -67,15 +71,24 @@ public class CsvToShipmentConverter {
 		return Base64.getEncoder().encodeToString(hashBytes);
 	}
 
+	/**
+	 * Generate a unique tracking number like TRK<timestamp>-<random>
+	 */
 	private String generateTrackingNumber() {
 		String uuidPart = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
 		return "TRK" + System.currentTimeMillis() + "-" + uuidPart;
 	}
 
+	/**
+	 * Generate a unique shipment key like SHIP-XXXXXXXXXX
+	 */
 	private String generateShipmentKey() {
 		return "SHIP-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase();
 	}
 
+	/**
+	 * Generate a unique batch number like BATCH-20250715-182350-XYZ
+	 */
 	private String generateBatchNumber() {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 		String datetime = LocalDateTime.now().format(formatter);
