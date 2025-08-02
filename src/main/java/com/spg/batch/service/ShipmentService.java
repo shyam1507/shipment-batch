@@ -12,19 +12,23 @@ import com.spg.batch.model.Shipment;
 @Service
 public class ShipmentService {
 
-    private final ShipmentMapper mapper;
+	private final ShipmentMapper mapper;
 
-    public ShipmentService(ShipmentMapper mapper) {
-        this.mapper = mapper;
-    }
+	public ShipmentService(ShipmentMapper mapper) {
+		this.mapper = mapper;
+	}
 
-    public void saveAll(List<Shipment> shipments) {
-        for (Shipment s : shipments) {
-            try {
-                mapper.insertShipment(s);
-            } catch (DuplicateKeyException e) {
-                System.err.println("Duplicate Tracking Number skipped: " + s.getTrackingNumber());
-            }
-        }
-    }
+	public void saveAll(List<Shipment> shipments) {
+		for (Shipment s : shipments) {
+			try {
+				mapper.insertShipment(s);
+			} catch (DuplicateKeyException e) {
+				System.err.println("Duplicate Tracking Number skipped: " + s.getTrackingNumber());
+			}
+		}
+	}
+
+	public List<Shipment> getShipmentsByBatchNumber(String batchNumber) {
+		return mapper.findByBatchNumber(batchNumber);
+	}
 }
